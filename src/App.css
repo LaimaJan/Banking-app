@@ -9,6 +9,16 @@
 	margin: 20px 0 40px 0;
 }
 
+.sorting-button-container {
+	width: 100%;
+	text-align: right;
+}
+
+.sorting-button-container button {
+	padding: 5px 10px;
+	margin: 0 5px 10px 0;
+}
+
 form {
 	display: flex;
 	flex-direction: row;

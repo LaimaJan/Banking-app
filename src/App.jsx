@@ -6,6 +6,7 @@ function App() {
 	const [lastName, setLastName] = useState('');
 	const [users, setUsers] = useState([]);
 	const [moneyInputs, setMoneyInputs] = useState({}); // Updated state variable
+	const [isSorting, setIsSorting] = useState(false);
 
 	useEffect(() => {
 		const getUsers = localStorage.getItem('users') || JSON.stringify([]);
@@ -52,20 +53,28 @@ function App() {
 		setUsers(deleted);
 	};
 
-	const sortBySurname = users.sort(function (a, b) {
-		if (a.surname.toLowerCase() < b.surname.toLowerCase()) return -1;
-		if (a.surname.toLowerCase() > b.surname.toLowerCase()) return 1;
-		return 0;
-	});
+	const sortBySurname = () => {
+		if (!isSorting) {
+			setIsSorting(true);
+			return;
+		}
 
-	console.log(sortBySurname);
+		// Creating new array with users to be able to change it without modifyind the original one
+		const sortedUsers = [...users].sort(function (a, b) {
+			if (a.surname.toLowerCase() < b.surname.toLowerCase()) return -1;
+			if (a.surname.toLowerCase() > b.surname.toLowerCase()) return 1;
+			return 0;
+		});
+
+		setUsers(sortedUsers);
+	};
 
 	const handleChange = (event, id) => {
-		// Updated handleChange function
 		const { value } = event.target;
+		const nonNegativeValue = value.replace(/[^0-9.]/g, '');
 		setMoneyInputs((prevMoneyInputs) => ({
 			...prevMoneyInputs,
-			[id]: value,
+			[id]: nonNegativeValue,
 		}));
 	};
 
@@ -133,7 +142,13 @@ function App() {
 			</div>
 
 			<div className="banking-list">
-				<h2>SASKAITOS</h2>
+				<div className="title">
+					<h2>SASKAITOS</h2>
+				</div>
+				<div className="sorting-button-container">
+					<button onClick={sortBySurname}>Surusiuoti</button>
+				</div>
+
 				<table>
 					<thead>
 						<tr>
