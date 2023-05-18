@@ -5,11 +5,12 @@ function App() {
 	const [firstName, setFirstName] = useState([]);
 	const [lastName, setLastName] = useState([]);
 	const [users, setUsers] = useState([]);
+	const [moneyInput, setMoneyInput] = useState('');
 
 	useEffect(() => {
 		const getUsers = localStorage.getItem('users') || JSON.stringify([]);
 		setUsers(JSON.parse(getUsers));
-	}, ['']);
+	}, [setUsers]);
 
 	const handleChangeFirstName = (e) => {
 		setFirstName(e.target.value);
@@ -30,7 +31,72 @@ function App() {
 		localStorage.setItem('users', JSON.stringify([...users, info]));
 		setUsers((current) => [...current, info]);
 
-		console.log(users);
+		setFirstName('');
+		setLastName('');
+	};
+
+	const removeUser = (id) => {
+		const deleted = users.filter((user) => {
+			if (user.id == id) {
+				if (user.moneyAmount <= 0) {
+					return false;
+				} else {
+					alert('Saskaitoje yra pinigu, istrinti negalima');
+					return true;
+				}
+			}
+			return true;
+		});
+
+		localStorage.setItem('users', JSON.stringify(deleted));
+		setUsers(deleted);
+	};
+
+	const sortBySurname = users.sort(function (a, b) {
+		if (a.surname.toLowerCase() < b.surname.toLowerCase()) return -1;
+		if (a.surname.toLowerCase() > b.surname.toLowerCase()) return 1;
+		return 0;
+	});
+
+	console.log(sortBySurname);
+
+	const handleChange = (event) => {
+		const { value } = event.target;
+		setMoneyInput(value);
+	};
+
+	const addMoney = (id) => {
+		const addUserMoney = users.map((user) => {
+			if (user.id == id) {
+				user.moneyAmount += parseFloat(moneyInput);
+			}
+		});
+
+		localStorage.setItem('users', JSON.stringify(users));
+		setUsers(users);
+
+		setMoneyInput('');
+		console.log(addUserMoney);
+	};
+
+	const deductMoney = (id) => {
+		const deductUserMoney = users.map((user) => {
+			if (user.id === id) {
+				if (user.moneyAmount < parseFloat(moneyInput)) {
+					alert('Nepakankamas likutis saskaitoje');
+					return user;
+				} else {
+					user.moneyAmount -= parseFloat(moneyInput);
+					return user;
+				}
+			}
+			return user;
+		});
+
+		localStorage.setItem('users', JSON.stringify(deductUserMoney));
+		setUsers(deductUserMoney);
+
+		setMoneyInput('');
 	};
 
 	return (
@@ -52,7 +118,7 @@ function App() {
 						value={lastName}
 						onChange={handleChangeLastName}
 					/>
-					<input type="submit" value="Sukurti" onClick={addUser} />
+					<input type="submit" value="Sukurti" onClick={() => addUser()} />
 				</form>
 			</div>
 
@@ -71,23 +137,36 @@ function App() {
 						</tr>
 					</thead>
 					<tbody>
-						{users.map((person, index) => {
+						{users.map((user, index) => {
 							return (
 								<tr key={index}>
-									<td>{person.name}</td>
-									<td>{person.surname}</td>
-									<td>{person.moneyAmount}</td>
+									<td>{user.name}</td>
+									<td>{user.surname}</td>
+									<td>{user.moneyAmount}</td>
 									<td>
-										<button>Istrinti</button>
+										<button onClick={() => removeUser(user.id)}>
+											Istrinti
+										</button>
 									</td>
 									<td>
-										<input type="text">{}</input>
+										<input
+											type="text"
+											value={moneyInput}
+											onChange={handleChange}
+										/>
 									</td>
 									<td>
-										<button>Prideti lesu</button>
+										<button id="add-money" onClick={() => addMoney(user.id)}>
+											Prideti lesu
+										</button>
 									</td>
 									<td>
-										<button>Nuskaiciuoti lesas</button>
+										<button
+											id="deduct-money"
+											onClick={() => deductMoney(user.id)}
+										>
+											Nuskaiciuoti lesas
+										</button>
 									</td>
 								</tr>
 							);
