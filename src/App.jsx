@@ -2,15 +2,15 @@ import { useState, useEffect } from 'react';
 import './App.css';
 
 function App() {
-	const [firstName, setFirstName] = useState([]);
-	const [lastName, setLastName] = useState([]);
+	const [firstName, setFirstName] = useState('');
+	const [lastName, setLastName] = useState('');
 	const [users, setUsers] = useState([]);
-	const [moneyInput, setMoneyInput] = useState('');
+	const [moneyInputs, setMoneyInputs] = useState({}); // Updated state variable
 
 	useEffect(() => {
 		const getUsers = localStorage.getItem('users') || JSON.stringify([]);
 		setUsers(JSON.parse(getUsers));
-	}, [setUsers]);
+	}, []);
 
 	const handleChangeFirstName = (e) => {
 		setFirstName(e.target.value);
@@ -60,43 +60,53 @@ function App() {
 
 	console.log(sortBySurname);
 
-	const handleChange = (event) => {
+	const handleChange = (event, id) => {
+		// Updated handleChange function
 		const { value } = event.target;
-		setMoneyInput(value);
+		setMoneyInputs((prevMoneyInputs) => ({
+			...prevMoneyInputs,
+			[id]: value,
+		}));
 	};
 
 	const addMoney = (id) => {
-		const addUserMoney = users.map((user) => {
+		const updatedUsers = users.map((user) => {
 			if (user.id == id) {
-				user.moneyAmount += parseFloat(moneyInput);
+				user.moneyAmount += parseFloat(moneyInputs[id] || 0); // Access the specific money input using the ID
 			}
+			return user;
 		});
 
-		localStorage.setItem('users', JSON.stringify(users));
-		setUsers(users);
+		localStorage.setItem('users', JSON.stringify(updatedUsers));
+		setUsers(updatedUsers);
 
-		setMoneyInput('');
-		console.log(addUserMoney);
+		setMoneyInputs((prevMoneyInputs) => ({
+			...prevMoneyInputs,
+			[id]: '', // Reset the input value for the specific ID
+		}));
 	};
 
 	const deductMoney = (id) => {
-		const deductUserMoney = users.map((user) => {
+		const updatedUsers = users.map((user) => {
 			if (user.id === id) {
-				if (user.moneyAmount < parseFloat(moneyInput)) {
+				if (user.moneyAmount < parseFloat(moneyInputs[id] || 0)) {
 					alert('Nepakankamas likutis saskaitoje');
 					return user;
 				} else {
-					user.moneyAmount -= parseFloat(moneyInput);
+					user.moneyAmount -= parseFloat(moneyInputs[id] || 0); // Access the specific money input using the ID
 					return user;
 				}
 			}
 			return user;
 		});
 
-		localStorage.setItem('users', JSON.stringify(deductUserMoney));
-		setUsers(deductUserMoney);
+		localStorage.setItem('users', JSON.stringify(updatedUsers));
+		setUsers(updatedUsers);
 
-		setMoneyInput('');
+		setMoneyInputs((prevMoneyInputs) => ({
+			...prevMoneyInputs,
+			[id]: '', // Reset the input value for the specific ID
+		}));
 	};
 
 	return (
@@ -151,8 +161,8 @@ function App() {
 									<td>
 										<input
 											type="text"
-											value={moneyInput}
-											onChange={handleChange}
+											value={moneyInputs[user.id] || ''} // Access the specific money input using the ID
+											onChange={(event) => handleChange(event, user.id)} // Pass the ID to the handleChange function
 										/>
 									</td>
 									<td>
