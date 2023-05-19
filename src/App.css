@@ -3,6 +3,30 @@
 	margin: 0 auto;
 }
 
+.container {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+}
+
+.message-container {
+	display: flex;
+	align-items: center;
+}
+
+.message p {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	font-size: 18px;
+	font-weight: 600;
+	border-radius: 5px;
+	width: 220px;
+	height: 50px;
+	background-color: rgb(221, 212, 215);
+}
+
 .create-new-person {
 	display: flex;
 	flex-direction: column;

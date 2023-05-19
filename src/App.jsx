@@ -1,17 +1,41 @@
 import { useState, useEffect } from 'react';
 import './App.css';
+import Trows from './app/components/Trows/Trows';
+import CreateNewUser from './app/components/CreateNewUser/CreateNewUser';
+import { popUpMessages } from '../src/app/data/PopUpMessages';
+
+import { deductMoney } from './app/functions/DeductMoney';
+import { addMoney } from './app/functions/AddMoney';
+import { removeUser } from './app/functions/RemoveUser';
 
 function App() {
 	const [firstName, setFirstName] = useState('');
 	const [lastName, setLastName] = useState('');
 	const [users, setUsers] = useState([]);
-	const [moneyInputs, setMoneyInputs] = useState({}); // Updated state variable
+	const [moneyInputs, setMoneyInputs] = useState({});
 	const [isSorting, setIsSorting] = useState(false);
+	const [alert, setAlert] = useState(false);
+	const [message, setMessage] = useState('');
+	const [showMessage, setShowMessage] = useState(false);
 
 	useEffect(() => {
 		const getUsers = localStorage.getItem('users') || JSON.stringify([]);
 		setUsers(JSON.parse(getUsers));
 	}, []);
+
+	const chooseAlertMessage = (getAlertMessage) => {
+		if (!alert) {
+			setAlert(true);
+
+			setMessage(getAlertMessage);
+
+			setShowMessage(true);
+			setTimeout(() => setShowMessage(false), 2000);
+			setTimeout(() => setAlert(false), 2000);
+
+			return;
+		}
+	};
 
 	const handleChangeFirstName = (e) => {
 		setFirstName(e.target.value);
@@ -32,27 +56,14 @@ function App() {
 		localStorage.setItem('users', JSON.stringify([...users, info]));
 		setUsers((current) => [...current, info]);
 
-		setFirstName('');
-		setLastName('');
-	};
-
-	const removeUser = (id) => {
-		const deleted = users.filter((user) => {
-			if (user.id == id) {
-				if (user.moneyAmount <= 0) {
-					return false;
-				} else {
-					alert('Saskaitoje yra pinigu, istrinti negalima');
-
-					return true;
-				}
-			}
-
-			return true;
+		const getAlertMessage = popUpMessages.map((message) => {
+			return message.newUser;
 		});
 
-		localStorage.setItem('users', JSON.stringify(deleted));
-		setUsers(deleted);
+		chooseAlertMessage(getAlertMessage);
+
+		setFirstName('');
+		setLastName('');
 	};
 
 	const sortBySurname = () => {
@@ -61,7 +72,6 @@ function App() {
 			return;
 		}
 
-		// Creating new array with users to be able to change it without modifyind the original one
 		const sortedUsers = [...users].sort(function (a, b) {
 			if (a.surname.toLowerCase() < b.surname.toLowerCase()) return -1;
 			if (a.surname.toLowerCase() > b.surname.toLowerCase()) return 1;
@@ -80,75 +90,33 @@ function App() {
 		}));
 	};
 
-	const addMoney = (id) => {
-		const updatedUsers = users.map((user) => {
-			if (user.id == id) {
-				user.moneyAmount += parseFloat(moneyInputs[id] || 0); // Access the specific money input using the ID
-			}
-			return user;
-		});
-
-		localStorage.setItem('users', JSON.stringify(updatedUsers));
-		setUsers(updatedUsers);
-
-		setMoneyInputs((prevMoneyInputs) => ({
-			...prevMoneyInputs,
-			[id]: '', // Reset the input value for the specific ID
-		}));
-	};
-
-	const deductMoney = (id) => {
-		const updatedUsers = users.map((user) => {
-			if (user.id === id) {
-				if (user.moneyAmount < parseFloat(moneyInputs[id] || 0)) {
-					alert('Nepakankamas likutis saskaitoje');
-					return user;
-				} else {
-					user.moneyAmount -= parseFloat(moneyInputs[id] || 0); // Access the specific money input using the ID
-					return user;
-				}
-			}
-			return user;
-		});
-
-		localStorage.setItem('users', JSON.stringify(updatedUsers));
-		setUsers(updatedUsers);
-
-		setMoneyInputs((prevMoneyInputs) => ({
-			...prevMoneyInputs,
-			[id]: '', // Reset the input value for the specific ID
-		}));
-	};
-
 	return (
 		<div className="App">
-			<div className="create-new-person">
-				<h3>Sukurti nauja saskaita</h3>
-				<form onSubmit={(e) => e.preventDefault()}>
-					<label htmlFor="fname">Vardas:</label>
-					<input
-						type="text"
-						name="name"
-						value={firstName}
-						onChange={handleChangeFirstName}
-					/>
-					<label htmlFor="lname">Pavarde:</label>
-					<input
-						type="text"
-						name="lastname"
-						value={lastName}
-						onChange={handleChangeLastName}
-					/>
-					<input type="submit" value="Sukurti" onClick={() => addUser()} />
-				</form>
+			<div className="container">
+				<CreateNewUser
+					onSubmit={(e) => e.preventDefault()}
+					firstNameValue={firstName}
+					handleChangeFirstName={handleChangeFirstName}
+					lastNameValue={lastName}
+					handleChangeLastName={handleChangeLastName}
+					onClick={() => addUser()}
+				/>
+
+				<div className="message-container">
+					{showMessage && (
+						<div className="message">
+							<p>{message}</p>
+						</div>
+					)}
+				</div>
 			</div>
 
 			<div className="banking-list">
 				<div className="title">
-					<h2>SASKAITOS</h2>
+					<h2>SĄSKAITOS</h2>
 				</div>
 				<div className="sorting-button-container">
-					<button onClick={sortBySurname}>Surusiuoti</button>
+					<button onClick={sortBySurname}>Surūšiuoti</button>
 				</div>
 
 				<table>
@@ -166,36 +134,43 @@ function App() {
 					<tbody>
 						{users.map((user, index) => {
 							return (
-								<tr key={index}>
-									<td>{user.name}</td>
-									<td>{user.surname}</td>
-									<td>{user.moneyAmount}</td>
-									<td>
-										<button onClick={() => removeUser(user.id)}>
-											Istrinti
-										</button>
-									</td>
-									<td>
-										<input
-											type="text"
-											value={moneyInputs[user.id] || ''} // Access the specific money input using the ID
-											onChange={(event) => handleChange(event, user.id)} // Pass the ID to the handleChange function
-										/>
-									</td>
-									<td>
-										<button id="add-money" onClick={() => addMoney(user.id)}>
-											Prideti lesu
-										</button>
-									</td>
-									<td>
-										<button
-											id="deduct-money"
-											onClick={() => deductMoney(user.id)}
-										>
-											Nuskaiciuoti lesas
-										</button>
-									</td>
-								</tr>
+								<Trows
+									key={index}
+									name={user.name}
+									surname={user.surname}
+									moneyAmount={user.moneyAmount}
+									deleteUser={() =>
+										removeUser(
+											users,
+											user.id,
+											setUsers,
+											chooseAlertMessage,
+											popUpMessages
+										)
+									}
+									inputValue={moneyInputs[user.id] || ''}
+									onChange={(event) => handleChange(event, user.id)}
+									addMoney={() =>
+										addMoney(
+											users,
+											user.id,
+											moneyInputs,
+											setUsers,
+											setMoneyInputs,
+											chooseAlertMessage
+										)
+									}
+									deductMoney={() =>
+										deductMoney(
+											users,
+											user.id,
+											moneyInputs,
+											setUsers,
+											setMoneyInputs,
+											chooseAlertMessage
+										)
+									}
+								/>
 							);
 						})}
 					</tbody>
