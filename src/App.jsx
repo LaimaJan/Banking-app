@@ -116,7 +116,9 @@ function App() {
 					<h2>SĄSKAITOS</h2>
 				</div>
 				<div className="sorting-button-container">
-					<button onClick={sortBySurname}>Surūšiuoti</button>
+					<button onClick={sortBySurname} id="sort-button">
+						Surūšiuoti
+					</button>
 				</div>
 
 				<table>
@@ -126,7 +128,7 @@ function App() {
 							<th>Pavarde</th>
 							<th>Suma</th>
 							<th></th>
-							<th>Irasyti verte</th>
+							<th>Irašyti vertę</th>
 							<th></th>
 							<th></th>
 						</tr>

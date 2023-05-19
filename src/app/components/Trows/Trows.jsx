@@ -14,7 +14,9 @@ export default function Trows({
 			<td>{surname}</td>
 			<td>{moneyAmount}</td>
 			<td>
-				<button onClick={deleteUser}>Ištrinti sąskaitą</button>
+				<button id="delete-btn" onClick={deleteUser}>
+					Ištrinti sąskaitą
+				</button>
 			</td>
 			<td>
 				<input type="text" value={inputValue} onChange={onChange} />

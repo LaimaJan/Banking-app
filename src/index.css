@@ -8,4 +8,17 @@
 
 input {
 	outline: none;
+	font-size: 16px;
+}
+
+button {
+	border: none;
+	padding: 5px 10px;
+	border-radius: 5px;
+	font-size: 15px;
+}
+
+body {
+	background-color: #f2f0ef;
+	font-size: 18px;
 }

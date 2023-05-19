@@ -33,6 +33,15 @@
 	margin: 20px 0 40px 0;
 }
 
+.submit-btn {
+	background-color: #63b170;
+	padding: 5px 10px;
+	border: none;
+	border-radius: 5px;
+	color: white;
+	font-weight: 600;
+}
+
 .sorting-button-container {
 	width: 100%;
 	text-align: right;
@@ -69,5 +78,29 @@ thead th {
 
 th,
 td {
-	padding: 5px;
+	padding: 10px;
+}
+
+#add-money,
+#deduct-money,
+#delete-btn,
+#sort-button {
+	color: white;
+	font-weight: 600;
+}
+
+#add-money {
+	background-color: #535c60;
+}
+
+#deduct-money {
+	background-color: #117aff;
+}
+
+#delete-btn {
+	background-color: rgb(215, 71, 71);
+}
+
+#sort-button {
+	background-color: rgb(164, 165, 166);
 }

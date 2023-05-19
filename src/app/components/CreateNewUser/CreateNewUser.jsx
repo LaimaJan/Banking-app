@@ -24,7 +24,12 @@ export default function CreateNewUser({
 					value={lastNameValue}
 					onChange={handleChangeLastName}
 				/>
-				<input type="submit" value="Sukurti" onClick={onClick} />
+				<input
+					type="submit"
+					value="Sukurti"
+					className="submit-btn"
+					onClick={onClick}
+				/>
 			</form>
 		</div>
 	);
