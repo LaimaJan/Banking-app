@@ -43,9 +43,11 @@ function App() {
 					return false;
 				} else {
 					alert('Saskaitoje yra pinigu, istrinti negalima');
+
 					return true;
 				}
 			}
+
 			return true;
 		});
 
